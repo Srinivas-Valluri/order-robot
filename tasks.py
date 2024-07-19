@@ -48,7 +48,6 @@ def read_data_from_csv():
     csv_file_path = './orders.csv'
     csv_data = []
     with open(csv_file_path, mode='r', newline='') as csvfile:
-        # Create a CSV reader object
         csv_reader = csv.reader(csvfile)
         next(csv_reader)
 
@@ -62,36 +61,29 @@ def add_png_to_pdf(pdf_path, output_path, *image_paths ):
     pdf_reader = PdfReader(pdf_path)
     pdf_writer = PdfWriter()
 
-    # Iterate through each page of the PDF and add it to the new PDF
     for page_num in range(len(pdf_reader.pages)):
         page = pdf_reader.pages[page_num]
         pdf_writer.add_page(page)
 
-    # Calculate dimensions for each image and add them to the PDF
     for image_path in image_paths:
         img = Image.open(image_path)
         img_width, img_height = img.size
 
-        # Define position and size for the image on the page
         image_width = 200  # Image width
-        image_height = img_height * (image_width / img_width)  # Maintain aspect ratio
-        image_x = (letter[0] - image_width) / 2  # Centered horizontally
-        image_y = 50  # Position at the bottom with some margin
+        image_height = img_height * (image_width / img_width) 
+        image_x = (letter[0] - image_width) / 2  
+        image_y = 50  
 
-        # Create a new page and draw the image on it
         packet = BytesIO()
         can = canvas.Canvas(packet, pagesize=letter)
         can.drawImage(image_path, image_x, image_y, width=image_width, height=image_height)
         can.save()
 
-        # Move to the beginning of the StringIO buffer
         packet.seek(0)
         new_pdf = PdfReader(packet)
 
-        # Add the new page with the image to the existing PDF
         pdf_writer.add_page(new_pdf.pages[0])
 
-    # Write the combined PDF to a new file
     with open(output_path, 'wb') as output_file:
         pdf_writer.write(output_file)
 
@@ -100,7 +92,6 @@ def add_png_to_pdf(pdf_path, output_path, *image_paths ):
 def clean_up(folder_path):
 
     try:
-        # Attempt to delete the folder and its contents
         shutil.rmtree(folder_path)
         print(f"Deleted folder '{folder_path}' successfully.")
     except Exception as e:
@@ -134,77 +125,17 @@ def fill_form_using_data(csv_data):
         add_png_to_pdf(order_page_path, order_page_path, robot_head_page_path, robot_body_page_path, robot_legs_page_path)
         clean_up('./output/parts')
         
-        # pdf_reader = PdfReader(order_page_path)
-        # pdf_writer = PdfWriter()
-
-        # # Add existing pages to new PDF
-        # for page_num in range(len(pdf_reader.pages)):
-        #     page = pdf_reader.pages[page_num]
-        #     pdf_writer.add_page(page)
-
-        # # Create a new page with the image
-        # packet = BytesIO()
-        # can = canvas.Canvas(packet, pagesize=letter)
         
-        # # Load image and get dimensions
-        # img = Image.open(robot_page_path)
-        # img_width, img_height = img.size
-        
-        # # Define position and size for the image on the page
-        # image_x = 100  # X coordinate (from left)
-        # image_y = 100  # Y coordinate (from bottom)
-        # image_width = 200  # Image width
-        # image_height = img_height * (image_width / img_width)  # Maintain aspect ratio
-        
-        # # Draw the image on the canvas
-        # can.drawImage(head, image_x, image_y, width=image_width, height=image_height)
-        # can.save()
-
-        # # Move to the beginning of the StringIO buffer
-        # packet.seek(0)
-        # new_pdf = PdfReader(packet)
-
-        # # Add the new page with the image to the existing PDF
-        # pdf_writer.addPage(new_pdf.getPage(0))
-
-        # # Write the combined PDF to a new file
-        # with open(order_page_path, 'wb') as output_file:
-        #     pdf_writer.write(order_page_path)
-
-        # print(f"Image added to '{order_page_path}' successfully.")
-
-
-        # page.screenshot(path=order_page_path)
         page.click("#order-another")
         give_consent()
         print("One Done")
 
-
-    #----Ignore this this is hard-coded stuff----
-    # page = browser.page()
-    # page.select_option("#head", "1")
-    # body_id= "#id-body-"+"1"
-    # page.click("#id-body-1")
-    # page.locator(".mb-3 input[placeholder='Enter the part number for the legs']").fill("2")
-    # page.locator(".mb-3 input[placeholder='Shipping address']").fill("HYD")
-    # while True:
-    #     page.click("#order")
-    #     try:
-    #         page.locator(".alert, .alert-danger").inner_html()
-    #     except:
-    #         break
-    # print("NO")
-
 def zip_up(folder_path, output_zip):
     try:
-        # Initialize ZipFile object
         with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            # Walk through all files and folders in the directory
             for root, _, files in os.walk(folder_path):
                 for file in files:
-                    # Create complete file path
                     file_path = os.path.join(root, file)
-                    # Add file to zip
                     zipf.write(file_path, os.path.relpath(file_path, folder_path))
 
         print(f"Folder '{folder_path}' successfully zipped to '{output_zip}'.")
